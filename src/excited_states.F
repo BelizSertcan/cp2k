@@ -20,6 +20,7 @@ MODULE excited_states
                                               cp_logger_type
    USE ex_property_calculation,         ONLY: ex_properties
    USE exstates_types,                  ONLY: excited_energy_type
+   USE input_section_types,             ONLY: section_vals_type, section_vals_get_subs_vals
    USE qs_energy_types,                 ONLY: qs_energy_type
    USE qs_environment_types,            ONLY: get_qs_env,&
                                               qs_environment_type,&
@@ -72,6 +73,7 @@ CONTAINS
       TYPE(qs_energy_type), POINTER                      :: energy
       TYPE(qs_force_type), DIMENSION(:), POINTER         :: ks_force, lr_force
       TYPE(qs_p_env_type)                                :: p_env
+      TYPE(section_vals_type), POINTER                   :: tdlr_section
 
       CALL timeset(routineN, handle)
 
@@ -85,6 +87,11 @@ CONTAINS
          END IF
 
          CALL get_qs_env(qs_env, exstate_env=ex_env, energy=energy)
+
+	 !
+         !NULLIFY (tdlr_section)
+         tdlr_section => section_vals_get_subs_vals(qs_env%input, "PROPERTIES%TDDFPT%LINRES")
+	 !
 
          energy%excited_state = ex_env%evalue
          energy%total = energy%total + ex_env%evalue
@@ -102,7 +109,7 @@ CONTAINS
             CALL zero_qs_force(lr_force)
             CALL set_qs_env(qs_env, force=lr_force)
             !
-            CALL response_equation(qs_env, p_env, ex_env%cpmos, unit_nr)
+            CALL response_equation(qs_env, p_env, ex_env%cpmos, unit_nr, tdlr_section) !!!!!!!!
             !
             CALL get_qs_env(qs_env, dft_control=dft_control)
             IF (dft_control%qs_control%semi_empirical) THEN

@@ -1656,6 +1656,58 @@ CONTAINS
       CALL section_add_subsection(section, subsection)
       CALL section_release(subsection)
 
+      ! LINRES subsection
+      CALL create_linres_section(subsection)
+      CALL section_add_subsection(section, subsection)
+      CALL section_release(subsection)
+!      CALL section_create(subsection, __LOCATION__, name="PRINT", &
+!                          description="Controls the LINRES parameters for the TDDFPT excited "// &
+!                          "state force calculation.", &
+!                          n_keywords=2, repeats=.FALSE.)
+!
+!      CALL keyword_create(keyword, __LOCATION__, name="MAX_ITER", &
+!                          description="Maximum number of conjugate gradient iteration to be performed for one optimization.", &
+!                          usage="MAX_ITER 200", default_i_val=100)
+!      CALL section_add_keyword(section, keyword)
+!      CALL keyword_release(keyword)
+!
+!      CALL keyword_create(keyword, __LOCATION__, name="ENERGY_GAP", &
+!                          description="Energy gap estimate [a.u.] for preconditioning", &
+!                          usage="ENERGY_GAP 0.1", &
+!                          default_r_val=0.2_dp)
+!      CALL section_add_keyword(section, keyword)
+!      CALL keyword_release(keyword)
+!
+!      CALL keyword_create( &
+!         keyword, __LOCATION__, name="PRECONDITIONER", &
+!         description="Type of preconditioner to be used with all minimization schemes. "// &
+!         "They differ in effectiveness, cost of construction, cost of application. "// &
+!         "Properly preconditioned minimization can be orders of magnitude faster than doing nothing.", &
+!         usage="PRECONDITIONER FULL_ALL", &
+!         default_i_val=ot_precond_none, &
+!         enum_c_vals=s2a("FULL_ALL", "FULL_SINGLE_INVERSE", "FULL_SINGLE", "FULL_KINETIC", "FULL_S_INVERSE", &
+!                         "NONE"), &
+!         enum_desc=s2a("Most effective state selective preconditioner based on diagonalization, "// &
+!                       "requires the ENERGY_GAP parameter to be an underestimate of the HOMO-LUMO gap. "// &
+!                       "This preconditioner is recommended for almost all systems, except very large systems where "// &
+!                       "make_preconditioner would dominate the total computational cost.", &
+!                       "Based on H-eS cholesky inversion, similar to FULL_SINGLE in preconditioning efficiency "// &
+!                       "but cheaper to construct, "// &
+!                       "might be somewhat less robust. Recommended for large systems.", &
+!                       "Based on H-eS diagonalisation, not as good as FULL_ALL, but somewhat cheaper to apply. ", &
+!                       "Cholesky inversion of S and T, fast construction, robust, and relatively good, "// &
+!                       "use for very large systems.", &
+!                       "Cholesky inversion of S, not as good as FULL_KINETIC, yet equally expensive.", &
+!                       "skip preconditioning"), &
+!         enum_i_vals=(/ot_precond_full_all, ot_precond_full_single_inverse, ot_precond_full_single, &
+!                       ot_precond_full_kinetic, ot_precond_s_inverse, ot_precond_none/))
+!      CALL section_add_keyword(section, keyword)
+!      CALL keyword_release(keyword)
+!
+!      CALL section_add_subsection(section, subsection)
+!      CALL section_release(subsection)
+      ! LINRES subsection END
+
       ! PRINT subsection
       CALL section_create(subsection, __LOCATION__, name="PRINT", &
                           description="Printing of information during the TDDFT run.", repeats=.FALSE.)
@@ -2022,7 +2074,7 @@ CONTAINS
                           "levels, 20 points for 0.03 eV precision, "// &
                           "and 30 points for 0.01 eV precision, see Table I in "// &
                           "[https://doi.org/10.1021/acs.jctc.0c01282]. GW computation time "// &
-                          "increases linearly with NUM_TIME_FREQ_POINTS.", &
+                          "increases roughly linearly with NUM_TIME_FREQ_POINTS.", &
                           usage="NUM_TIME_FREQ_POINTS 30", &
                           default_i_val=30)
       CALL section_add_keyword(section, keyword)
@@ -2041,10 +2093,10 @@ CONTAINS
       CALL keyword_create(keyword, __LOCATION__, name="SIZE_LATTICE_SUM_V", &
                           description="Determines number of cells used for summing the "// &
                           "cells R in the Coulomb matrix, "// &
-                          "V_PQ(k) = \sum_R <P,cell=0 | 1/r | Q,cell=R>. SIZE_LATTICE_SUM_V 4 "// &
+                          "V_PQ(k) = \sum_R <P,cell=0 | 1/r | Q,cell=R>. SIZE_LATTICE_SUM_V 5 "// &
                           "gives excellent convergence, parameter does not need to be touched.", &
                           usage="SIZE_LATTICE_SUM_V 4", &
-                          default_i_val=4)
+                          default_i_val=5)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
@@ -2060,7 +2112,7 @@ CONTAINS
                           "(for example, from a supercomputer website, typically between "// &
                           "100 GB and 2 TB), get the number of "// &
                           "MPI processes per node, n_MPI_proc_per_node"// &
-                          " (for example from your run-script; if you "// &
+                          " (for example from your run-script; if you : "// &
                           "use slurm, the number behind '--ntasks-per-node' is the number "// &
                           "of MPI processes per node). Then calculate "// &
                           "MEMORY_PER_PROC = mem_per_node / n_MPI_proc_per_node "// &
@@ -2073,7 +2125,7 @@ CONTAINS
       CALL keyword_create(keyword, __LOCATION__, name="GROUP_SIZE_TENSOR", &
                           description="Specify the number of MPI processes for a group "// &
                           "performing tensor operations. If '-1', automatic choice which "// &
-                          "should be good enough for most cases.", &
+                          "should be good enough for most cases. ", &
                           usage="GROUP_SIZE_TENSOR 16", &
                           default_i_val=-1)
       CALL section_add_keyword(section, keyword)
@@ -2093,15 +2145,6 @@ CONTAINS
          "values, e.g. KPOINTS_CHI_EPS_W -1 -1 -1.", &
          usage="KPOINTS_CHI_EPS_W  N_x  N_y  N_z", &
          n_var=3, type_of_var=integer_t, default_i_vals=(/-1, -1, -1/))
-      CALL section_add_keyword(section, keyword)
-      CALL keyword_release(keyword)
-
-      CALL keyword_create(keyword, __LOCATION__, name="APPROX_KP_EXTRAPOL", &
-                          description="If true, use only a 2x2 kpoint mesh for frequency "// &
-                          "points ω_j, j >= 2, and get the k-point extrapolation of "// &
-                          "W_PQ(iω_j,q) approximately from W_PQ(iω_1,q).", &
-                          usage="APPROX_KP_EXTRAPOL", &
-                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
