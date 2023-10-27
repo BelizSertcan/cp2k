@@ -1660,53 +1660,6 @@ CONTAINS
       CALL create_linres_section(subsection)
       CALL section_add_subsection(section, subsection)
       CALL section_release(subsection)
-!      CALL section_create(subsection, __LOCATION__, name="PRINT", &
-!                          description="Controls the LINRES parameters for the TDDFPT excited "// &
-!                          "state force calculation.", &
-!                          n_keywords=2, repeats=.FALSE.)
-!
-!      CALL keyword_create(keyword, __LOCATION__, name="MAX_ITER", &
-!                          description="Maximum number of conjugate gradient iteration to be performed for one optimization.", &
-!                          usage="MAX_ITER 200", default_i_val=100)
-!      CALL section_add_keyword(section, keyword)
-!      CALL keyword_release(keyword)
-!
-!      CALL keyword_create(keyword, __LOCATION__, name="ENERGY_GAP", &
-!                          description="Energy gap estimate [a.u.] for preconditioning", &
-!                          usage="ENERGY_GAP 0.1", &
-!                          default_r_val=0.2_dp)
-!      CALL section_add_keyword(section, keyword)
-!      CALL keyword_release(keyword)
-!
-!      CALL keyword_create( &
-!         keyword, __LOCATION__, name="PRECONDITIONER", &
-!         description="Type of preconditioner to be used with all minimization schemes. "// &
-!         "They differ in effectiveness, cost of construction, cost of application. "// &
-!         "Properly preconditioned minimization can be orders of magnitude faster than doing nothing.", &
-!         usage="PRECONDITIONER FULL_ALL", &
-!         default_i_val=ot_precond_none, &
-!         enum_c_vals=s2a("FULL_ALL", "FULL_SINGLE_INVERSE", "FULL_SINGLE", "FULL_KINETIC", "FULL_S_INVERSE", &
-!                         "NONE"), &
-!         enum_desc=s2a("Most effective state selective preconditioner based on diagonalization, "// &
-!                       "requires the ENERGY_GAP parameter to be an underestimate of the HOMO-LUMO gap. "// &
-!                       "This preconditioner is recommended for almost all systems, except very large systems where "// &
-!                       "make_preconditioner would dominate the total computational cost.", &
-!                       "Based on H-eS cholesky inversion, similar to FULL_SINGLE in preconditioning efficiency "// &
-!                       "but cheaper to construct, "// &
-!                       "might be somewhat less robust. Recommended for large systems.", &
-!                       "Based on H-eS diagonalisation, not as good as FULL_ALL, but somewhat cheaper to apply. ", &
-!                       "Cholesky inversion of S and T, fast construction, robust, and relatively good, "// &
-!                       "use for very large systems.", &
-!                       "Cholesky inversion of S, not as good as FULL_KINETIC, yet equally expensive.", &
-!                       "skip preconditioning"), &
-!         enum_i_vals=(/ot_precond_full_all, ot_precond_full_single_inverse, ot_precond_full_single, &
-!                       ot_precond_full_kinetic, ot_precond_s_inverse, ot_precond_none/))
-!      CALL section_add_keyword(section, keyword)
-!      CALL keyword_release(keyword)
-!
-!      CALL section_add_subsection(section, subsection)
-!      CALL section_release(subsection)
-      ! LINRES subsection END
 
       ! PRINT subsection
       CALL section_create(subsection, __LOCATION__, name="PRINT", &
