@@ -88,14 +88,7 @@ CONTAINS
 
          CALL get_qs_env(qs_env, exstate_env=ex_env, energy=energy)
 
-<<<<<<< HEAD
-	 !
-         !NULLIFY (tdlr_section)
          tdlr_section => section_vals_get_subs_vals(qs_env%input, "PROPERTIES%TDDFPT%LINRES")
-	 !
-=======
-         tdlr_section => section_vals_get_subs_vals(qs_env%input, "PROPERTIES%TDDFPT%LINRES")
->>>>>>> temp
 
          energy%excited_state = ex_env%evalue
          energy%total = energy%total + ex_env%evalue
@@ -113,11 +106,7 @@ CONTAINS
             CALL zero_qs_force(lr_force)
             CALL set_qs_env(qs_env, force=lr_force)
             !
-<<<<<<< HEAD
-            CALL response_equation(qs_env, p_env, ex_env%cpmos, unit_nr, tdlr_section) !!!!!!!!
-=======
             CALL response_equation(qs_env, p_env, ex_env%cpmos, unit_nr, tdlr_section)
->>>>>>> temp
             !
             CALL get_qs_env(qs_env, dft_control=dft_control)
             IF (dft_control%qs_control%semi_empirical) THEN
