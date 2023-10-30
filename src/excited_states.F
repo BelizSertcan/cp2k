@@ -20,8 +20,7 @@ MODULE excited_states
                                               cp_logger_type
    USE ex_property_calculation,         ONLY: ex_properties
    USE exstates_types,                  ONLY: excited_energy_type
-   USE input_section_types,             ONLY: section_vals_type, section_vals_get_subs_vals !,&
-!				      section_vals_get
+   USE input_section_types,             ONLY: section_vals_type, section_vals_get_subs_vals 
    USE qs_energy_types,                 ONLY: qs_energy_type
    USE qs_environment_types,            ONLY: get_qs_env,&
                                               qs_environment_type,&
@@ -31,7 +30,6 @@ MODULE excited_states
                                               qs_force_type,&
                                               sum_qs_force,&
                                               zero_qs_force
-!   USE qs_linres_types,                 ONLY: linres_control_type    ! mod
    USE qs_p_env_types,                  ONLY: p_env_release,&
                                               qs_p_env_type
    USE response_solver,                 ONLY: response_equation,&
@@ -68,12 +66,10 @@ CONTAINS
 
       INTEGER                                            :: handle, unit_nr
       INTEGER, ALLOCATABLE, DIMENSION(:)                 :: natom_of_kind
-!      LOGICAL                                            :: explicit
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cp_logger_type), POINTER                      :: logger
       TYPE(dft_control_type), POINTER                    :: dft_control
       TYPE(excited_energy_type), POINTER                 :: ex_env
-!      TYPE(linres_control_type), POINTER                 :: linres_control  ! mod
       TYPE(qs_energy_type), POINTER                      :: energy
       TYPE(qs_force_type), DIMENSION(:), POINTER         :: ks_force, lr_force
       TYPE(qs_p_env_type)                                :: p_env
@@ -99,22 +95,9 @@ CONTAINS
                WRITE (unit_nr, '(T2,A,A,A,A,A)') "!", REPEAT("-", 27), &
                   " Excited State Forces ", REPEAT("-", 28), "!"
             END IF
-	    ! read input
-            !
+
             tdlr_section => section_vals_get_subs_vals(qs_env%input, "PROPERTIES%TDDFPT%LINRES")
-!            CALL section_vals_get(tdlr_section) !, explicit=explicit)
-!            IF (explicit) THEN
-!               NULLIFY (linres_control)
-!               CALL section_vals_val_get(tdlr_section, "EPS", r_val=linres_control%eps)
-!               CALL section_vals_val_get(tdlr_section, "EPS_FILTER", r_val=linres_control%eps_filter)
-!               CALL section_vals_val_get(tdlr_section, "MAX_ITER", i_val=linres_control%max_iter)
-!               CALL section_vals_val_get(tdlr_section, "METHOD", i_val=solver_method)
-!               CALL section_vals_val_get(tdlr_section, "PRECONDITIONER", i_val=linres_control%preconditioner_type)
-!               CALL section_vals_val_get(tdlr_section, "RESTART", l_val=linres_control%linres_restart)
-!               CALL section_vals_val_get(tdlr_section, "RESTART_EVERY", i_val=linres_control%restart_every)
-!               !
-!            END IF
-            !
+
             ! prepare force array
             CALL get_qs_env(qs_env, force=ks_force, atomic_kind_set=atomic_kind_set)
             CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, natom_of_kind=natom_of_kind)
@@ -122,9 +105,9 @@ CONTAINS
             CALL allocate_qs_force(lr_force, natom_of_kind)
             DEALLOCATE (natom_of_kind)
             CALL zero_qs_force(lr_force)
-            CALL set_qs_env(qs_env, force=lr_force) !, linres_control=linres_control) ! mod
+            CALL set_qs_env(qs_env, force=lr_force)
             !
-            CALL response_equation(qs_env, p_env, ex_env%cpmos, unit_nr, tdlr_section) ! mod
+            CALL response_equation(qs_env, p_env, ex_env%cpmos, unit_nr, tdlr_section)
             !
             CALL get_qs_env(qs_env, dft_control=dft_control)
             IF (dft_control%qs_control%semi_empirical) THEN
