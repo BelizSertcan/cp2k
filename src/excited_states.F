@@ -20,7 +20,8 @@ MODULE excited_states
                                               cp_logger_type
    USE ex_property_calculation,         ONLY: ex_properties
    USE exstates_types,                  ONLY: excited_energy_type
-   USE input_section_types,             ONLY: section_vals_type, section_vals_get_subs_vals 
+   USE input_section_types,             ONLY: section_vals_get_subs_vals,&
+                                              section_vals_type
    USE qs_energy_types,                 ONLY: qs_energy_type
    USE qs_environment_types,            ONLY: get_qs_env,&
                                               qs_environment_type,&

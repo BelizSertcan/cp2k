@@ -2132,7 +2132,7 @@ CONTAINS
                           "(for example, from a supercomputer website, typically between "// &
                           "100 GB and 2 TB), get the number of "// &
                           "MPI processes per node, n_MPI_proc_per_node"// &
-                          " (for example from your run-script; if you : "// &
+                          " (for example from your run-script; if you "// &
                           "use slurm, the number behind '--ntasks-per-node' is the number "// &
                           "of MPI processes per node). Then calculate "// &
                           "`MEMORY_PER_PROC` = mem_per_node / n_MPI_proc_per_node "// &
