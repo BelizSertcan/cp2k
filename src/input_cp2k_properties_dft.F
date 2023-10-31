@@ -1657,34 +1657,36 @@ CONTAINS
       CALL section_release(subsection)
 
       ! LINRES subsection
-      CALL section_create(section, __LOCATION__, name="linres", &
+!      CPASSERT(.NOT. ASSOCIATED(section))
+      CALL section_create(subsection, __LOCATION__, name="linres", &
                           description="Controls the LINRES parameters for the TDDFPT excited "// &
                           "state force calculation.", &
                           n_keywords=5, repeats=.FALSE., &
                           citations=(/Putrino2000/))
 
+      NULLIFY (keyword)
       CALL keyword_create(keyword, __LOCATION__, name="EPS", &
                           description="target accuracy for the convergence of the conjugate gradient.", &
                           usage="EPS 1.e-6", default_r_val=1.e-6_dp)
-      CALL section_add_keyword(section, keyword)
+      CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="EPS_FILTER", &
                           description="Filter threshold for response density matrix.", &
                           usage="EPS 1.e-8", default_r_val=0.0_dp)
-      CALL section_add_keyword(section, keyword)
+      CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="MAX_ITER", &
                           description="Maximum number of conjugate gradient iteration to be performed for one optimization.", &
                           usage="MAX_ITER 200", default_i_val=50)
-      CALL section_add_keyword(section, keyword)
+      CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="RESTART_EVERY", &
                           description="Restart the conjugate gradient after the specified number of iterations.", &
                           usage="RESTART_EVERY 200", default_i_val=50)
-      CALL section_add_keyword(section, keyword)
+      CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create( &
@@ -1707,25 +1709,24 @@ CONTAINS
                        "Cholesky inversion of S and T, fast construction, robust, and relatively good, "// &
                        "use for very large systems.", &
                        "Cholesky inversion of S, not as good as FULL_KINETIC, yet equally expensive.", &
-                       "skip preconditioning", &
-                       "NONE is not stable for excited state forces"), &
+                       "skip preconditioning, not stable for excited state forces"), &
          enum_i_vals=(/ot_precond_full_all, ot_precond_full_single_inverse, ot_precond_full_single, &
                        ot_precond_full_kinetic, ot_precond_s_inverse, ot_precond_none/))
-      CALL section_add_keyword(section, keyword)
+      CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="ENERGY_GAP", &
                           description="Energy gap estimate [a.u.] for preconditioning", &
                           usage="ENERGY_GAP 0.1", &
                           default_r_val=0.2_dp)
-      CALL section_add_keyword(section, keyword)
+      CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="RESTART", &
                           description="Restart the response calculation if the restart file exists", &
                           usage="RESTART", &
                           default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
-      CALL section_add_keyword(section, keyword)
+      CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="WFN_RESTART_FILE_NAME", &
@@ -1734,8 +1735,11 @@ CONTAINS
                           "which to restart the calculation of the linear response", &
                           usage="WFN_RESTART_FILE_NAME <FILENAME>", &
                           type_of_var=lchar_t)
-      CALL section_add_keyword(section, keyword)
+      CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
+
+      CALL section_add_subsection(section, subsection)
+      CALL section_release(subsection)
       ! END LINRES
 
       ! PRINT subsection
