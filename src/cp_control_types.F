@@ -29,6 +29,9 @@ MODULE cp_control_types
                                               smeagol_control_type
    USE xas_control,                     ONLY: xas_control_release,&
                                               xas_control_type
+   USE xas_tdp_types,                   ONLY: xas_tdp_control_type, &
+                                              xas_tdp_control_release, &
+                                              xas_tdp_control_create
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -599,6 +602,17 @@ MODULE cp_control_types
    END TYPE tddfpt2_control_type
 
 ! **************************************************************************************************
+!> \brief
+! **************************************************************************************************
+    TYPE rixs_control_type
+
+        TYPE(tddfpt2_control_type), POINTER     :: tddfpt2_control => NULL()
+        TYPE(xas_tdp_control_type), POINTER     :: xas_tdp_control => NULL()
+
+
+    END TYPE rixs_control_type
+
+! **************************************************************************************************
 ! \brief Control parameters for a DFT calculation
 ! \par History
 !      10.2019 added variables related to surface dipole correction [Soumya Ghosh]
@@ -611,6 +625,7 @@ MODULE cp_control_types
       TYPE(sccs_control_type), POINTER     :: sccs_control => NULL()
       TYPE(tddfpt_control_type), POINTER   :: tddfpt_control => NULL()
       TYPE(tddfpt2_control_type), POINTER  :: tddfpt2_control => NULL()
+      TYPE(rixs_control_type), POINTER          :: rixs_control => NULL()
       TYPE(xas_control_type), POINTER      :: xas_control => NULL()
       TYPE(expot_control_type), POINTER    :: expot_control => NULL()
       TYPE(maxwell_control_type), POINTER  :: maxwell_control => NULL()
@@ -639,7 +654,6 @@ MODULE cp_control_types
       LOGICAL                              :: do_tddfpt_calculation = .FALSE., &
                                               do_xas_calculation = .FALSE., &
                                               do_xas_tdp_calculation = .FALSE., &
-                                              do_rixs = .FALSE., &
                                               drho_by_collocation = .FALSE., &
                                               use_kinetic_energy_density = .FALSE., &
                                               restricted = .FALSE., &
@@ -680,6 +694,7 @@ MODULE cp_control_types
              gapw_control_type, &
              tddfpt_control_type, &
              tddfpt2_control_type, &
+             rixs_control_type, &
              proj_mo_type, &
              efield_type, &
              mulliken_restraint_type, &
@@ -705,7 +720,9 @@ MODULE cp_control_types
              admm_control_release, &
              maxwell_control_create, &
              expot_control_create, &
-             ddapc_control_create
+             ddapc_control_create, &
+             rixs_control_create, &
+             rixs_control_release
 
 CONTAINS
 
@@ -820,6 +837,7 @@ CONTAINS
       NULLIFY (dft_control%qs_control)
       NULLIFY (dft_control%tddfpt_control)
       NULLIFY (dft_control%tddfpt2_control)
+      NULLIFY (dft_control%rixs_control)
       NULLIFY (dft_control%efield_fields)
       NULLIFY (dft_control%period_efield)
       NULLIFY (dft_control%admm_control)
@@ -833,6 +851,7 @@ CONTAINS
       dft_control%apply_dmfet_pot = .FALSE.
       CALL qs_control_create(dft_control%qs_control)
       CALL tddfpt2_control_create(dft_control%tddfpt2_control)
+      CALL rixs_control_create(dft_control%rixs_control)
       CALL smeagol_control_create(dft_control%smeagol_control)
    END SUBROUTINE dft_control_create
 
@@ -849,6 +868,7 @@ CONTAINS
       CALL qs_control_release(dft_control%qs_control)
       CALL tddfpt_control_release(dft_control%tddfpt_control)
       CALL tddfpt2_control_release(dft_control%tddfpt2_control)
+      CALL rixs_control_release(dft_control%rixs_control) ! maybe check first if allocated
       IF (ASSOCIATED(dft_control%xas_control)) THEN
          CALL xas_control_release(dft_control%xas_control)
          DEALLOCATE (dft_control%xas_control)
@@ -1013,6 +1033,38 @@ CONTAINS
 
       CALL timestop(handle)
    END SUBROUTINE tddfpt2_control_release
+
+! **************************************************************************************************
+!> \brief Creates and initializes the rixs_control_type
+!> \param rixs_control the type to initialize
+! **************************************************************************************************
+   SUBROUTINE rixs_control_create(rixs_control)
+        TYPE(rixs_control_type), POINTER :: rixs_control
+
+        CPASSERT(.NOT. ASSOCIATED(rixs_control))
+        ALLOCATE(rixs_control)
+
+        NULLIFY(rixs_control%tddfpt2_control)
+        CALL tddfpt2_control_create(rixs_control%tddfpt2_control)
+        NULLIFY(rixs_control%xas_tdp_control)
+        CALL xas_tdp_control_create(rixs_control%xas_tdp_control)
+        
+   END SUBROUTINE rixs_control_create
+
+! **************************************************************************************************
+!> \brief Releases the rixs_control_type
+! **************************************************************************************************
+   SUBROUTINE rixs_control_release(rixs_control)
+        TYPE(rixs_control_type), POINTER :: rixs_control
+
+        IF (ASSOCIATED(rixs_control)) THEN
+            CALL tddfpt2_control_release(rixs_control%tddfpt2_control)
+            CALL xas_tdp_control_release(rixs_control%xas_tdp_control)
+
+            DEALLOCATE(rixs_control)
+        END IF
+
+   END SUBROUTINE rixs_control_release
 
 ! **************************************************************************************************
 !> \brief ...

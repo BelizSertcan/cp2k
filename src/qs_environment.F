@@ -44,7 +44,7 @@ MODULE qs_environment
    USE cp_control_utils,                ONLY: &
         read_ddapc_section, read_dft_control, read_mgrid_section, read_qs_section, &
         read_tddfpt2_control, read_tddfpt_control, write_admm_control, write_dft_control, &
-        write_qs_control
+        write_qs_control, read_rixs_control
    USE cp_ddapc_types,                  ONLY: cp_ddapc_ewald_create
    USE cp_log_handling,                 ONLY: cp_get_default_logger,&
                                               cp_logger_get_default_io_unit,&
@@ -206,7 +206,6 @@ MODULE qs_environment
                                               xtb_parameters_set
    USE xtb_potentials,                  ONLY: xtb_pp_radius
    USE xtb_types,                       ONLY: allocate_xtb_atom_param
-   !USE rixs_types,                      ONLY: read_rixs_control
 
 #include "./base/base_uses.f90"
 
@@ -743,10 +742,13 @@ CONTAINS
       ! reimplemented TDDFPT
       CALL read_tddfpt2_control(dft_control%tddfpt2_control, tddfpt_section, dft_control%qs_control)
 
+      WRITE(*,*) "qs_environment qs_env%do_rixs ", qs_env%do_rixs
       ! rixs
-      ! TODO: maybe need to do something here
-      ! then check for dft_control%do_rixs
-
+      CALL section_vals_get(rixs_section, explicit=qs_env%do_rixs)
+      IF (qs_env%do_rixs) THEN
+         CALL read_rixs_control(dft_control%rixs_control, rixs_section, dft_control%qs_control)
+      END IF
+      WRITE(*,*) "qs_environment after read_rixs_control qs_env%do_rixs ", qs_env%do_rixs
 
       !   Create relativistic control section
       BLOCK
@@ -1028,7 +1030,8 @@ CONTAINS
 
       END IF
 
-      IF (dft_control%do_xas_tdp_calculation) THEN
+      WRITE(*,*) "qs_env%do_rixs", qs_env%do_rixs
+      IF (dft_control%do_xas_tdp_calculation .OR. qs_env%do_rixs) THEN ! or do_rixs
          ! Check if RI_XAS basis is given, auto-generate if not
          CALL get_qs_env(qs_env, nkind=nkind)
          DO ikind = 1, nkind
@@ -1060,8 +1063,9 @@ CONTAINS
          CALL get_qs_kind_set(qs_kind_set, maxlgto=maxlgto_lri, basis_type="RI_HXC")
          maxlgto = MAX(maxlgto, maxlgto_lri)
       END IF
-      IF (dft_control%do_xas_tdp_calculation) THEN
+      IF (dft_control%do_xas_tdp_calculation .OR. qs_env%do_rixs) THEN ! or do_rixs
          !done as a precaution
+         WRITE(*,*) 
          CALL get_qs_kind_set(qs_kind_set, maxlgto=maxlgto_lri, basis_type="RI_XAS")
          maxlgto = MAX(maxlgto, maxlgto_lri)
       END IF

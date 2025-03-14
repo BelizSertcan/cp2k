@@ -89,7 +89,7 @@ MODULE bibliography
                             Stein2022, Stein2024, Pracht2019, &
                             Blase2018, Blase2020, Bruneval2015, Golze2019, Gui2018, Jacquemin2017, Liu2020, &
                             Sander2015, Schreiber2008, vanSetten2015, Setyawan2010, Ahart2024, Knysh2024, &
-                            Schambeck2024, Mewes2018, Sertcan2024
+                            Schambeck2024, Mewes2018, Sertcan2024, VazdaCruz2021
 
 CONTAINS
 
@@ -1917,6 +1917,13 @@ CONTAINS
                          "for the Tamm–Dancoff Approximation of Time-Dependent Density Functional Theory", &
                          source="J. Chem. Theory Comput.", volume="20", pages="8494-8504", &
                          year=2024, doi="10.1021/acs.jctc.4c00614")
+
+      CALL add_reference(key=VazdaCruz2021, &
+                         authors=s2a("V. Vaz da Cruz", "S. Eckert", "A. Fohlisch"), &
+                         title="TD-DFT simulations of K-edge resonant inelastic X-ray scattering within "// &
+                         "the restricted subspace approximation", &
+                         source="Phys. Chem. Chem. Phys.", volume="23", pages="1835-1848", &
+                         year=2021, doi="10.1039/d0cp04726k")
 
    END SUBROUTINE add_all_references
 
