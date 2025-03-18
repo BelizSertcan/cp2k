@@ -1,6 +1,6 @@
 !--------------------------------------------------------------------------------------------------!
 !   CP2K: A general program to perform molecular dynamics simulations                              !
-!   Copyright 2000-2024 CP2K developers group <https://cp2k.org>                                   !
+!   Copyright 2000-2025 CP2K developers group <https://cp2k.org>                                   !
 !                                                                                                  !
 !   SPDX-License-Identifier: GPL-2.0-or-later                                                      !
 !--------------------------------------------------------------------------------------------------!
@@ -288,6 +288,9 @@ MODULE xas_tdp_types
       REAL(dp), DIMENSION(:), POINTER         :: tp_evals => NULL()
       REAL(dp), DIMENSION(:), POINTER         :: soc_evals => NULL()
       REAL(dp), DIMENSION(:, :), POINTER      :: osc_str => NULL()
+      REAL(dp), DIMENSION(:, :), POINTER      :: alpha_osc => NULL()
+      REAL(dp), DIMENSION(:, :), POINTER      :: beta_osc => NULL()
+      REAL(dp), DIMENSION(:, :), POINTER      :: man_osc => NULL()      
       REAL(dp), DIMENSION(:, :), POINTER      :: soc_osc_str => NULL()
       REAL(dp), DIMENSION(:), POINTER         :: quad_osc_str => NULL()
       REAL(dp), DIMENSION(:), POINTER         :: soc_quad_osc_str => NULL()
@@ -925,6 +928,9 @@ CONTAINS
       NULLIFY (donor_state%soc_evals)
       NULLIFY (donor_state%soc_osc_str)
       NULLIFY (donor_state%osc_str)
+      NULLIFY (donor_state%alpha_osc)
+      NULLIFY (donor_state%beta_osc)
+      NULLIFY (donor_state%man_osc)
       NULLIFY (donor_state%soc_quad_osc_str)
       NULLIFY (donor_state%quad_osc_str)
       NULLIFY (donor_state%sc_matrix_tdp)
